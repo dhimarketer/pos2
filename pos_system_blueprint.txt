@@ -1,0 +1,261 @@
+POS System Blueprint V2: "Apex Retail Pro" 
+Overall Philosophy 
+
+The system is designed for security, efficiency, data integrity, and insightful reporting, operating primarily in an offline, local network environment with a centralized master database. 
+I. System Architecture & Deployment 
+Deployment Strategy: 
+
+    Web Application : The POS system will be a web application accessible via any browser on terminals within the local network.
+    Containerization (Docker) :
+        Ensures consistency across environments.
+        Provides isolation and prevents dependency conflicts.
+        Simplifies deployment and updates using Docker images (docker pull your-repo/apex-retail-pro:latest).
+        Enables scalability even if not immediately required.
+         
+    Local Server : Runs Apache2 as the web server, proxying requests to the Dockerized web app.
+    Master Database Server : Hosted locally or on a dedicated internal server.
+     
+
+Master Database Architecture (Offline with Internal Connection): 
+
+    Centralized Database : PostgreSQL or MySQL used instead of SQLite due to multi-terminal access requirements.
+    Multiple POS Terminals : All terminals connect to the central DB over LAN.
+    Fully Offline Clarification : Operates without internet; requires internal LAN connection to DB.
+    Offline Capability :
+        Local caching of critical data (e.g., items, customers).
+        Transaction queueing during LAN outages with retry logic.
+        Conflict resolution strategy needed for queued transactions.
+         
+     
+
+Centralized Logging & Monitoring: 
+
+    Logs, audit trails, and system events are directed to a centralized logging system.
+    Options include file-based aggregation or ELK stack (Elasticsearch, Logstash, Kibana) for advanced monitoring.
+     
+
+II. Core System Modules & Functionalities 
+A. User Management & Security 
+
+    User Management System 
+        CRUD operations for user accounts.
+        Roles: Manager, Cashier.
+         
+    Permission Management (RBAC) 
+        Granular permissions per action.
+        Role assignment and customization by managers.
+         
+    Audit Trail 
+        Logs all significant actions with details: Who, What, When, Where, Details.
+        Exportable and filterable by managers.
+         
+    Session Timeouts 
+        Automatic logout after configurable idle time.
+        Grace period warning before logout.
+         
+     
+
+B. Master Data Management 
+
+    Items Database 
+        SKU, Name, Description, Category, Cost Price, Packaging Unit, Stock.
+        Multi-level pricing (Level 1–3), status tracking, stock alerts.
+        MaxSaleQty field, price change history, search/filter options.
+         
+    Customer Database 
+        ID, Name, Contact Info, Address.
+        Purchase history linked to customer records.
+         
+    Supplier Database 
+        ID, Company Name, Contact Person, Phone, Email, Address, Payment Terms.
+        Linkage to purchase orders.
+         
+     
+
+C. Inventory & Purchasing 
+
+    Inventory Management 
+        Real-time tracking, minimum stock alerts.
+        Manual adjustments with reason codes and audit trail.
+        “No Sale” function for cash drawer use.
+         
+    Purchase Management 
+        Record local and foreign purchases with cost breakdowns.
+        Calculate landed cost and minimum selling prices.
+        Internal transfer orders between godowns and shops with audit logs.
+         
+     
+
+D. Sales & Transaction Management 
+
+    Sales Interface 
+        Touch-friendly layout, auto-complete search, shortcut keys.
+        Packaging unit awareness, item status checks, price level selection.
+        Discount handling with manager approval.
+         
+    Payment Options 
+        Supports Cash, Card (no integration), Cheque, Other.
+        Reports grouped by payment type.
+         
+    Error Handling & Rollbacks 
+        Clear error messages, retry mechanisms, transaction rollbacks.
+         
+    Sales Bill Edit Function (Manager Only) 
+        Post-sale edits with full audit trail and inventory impact.
+         
+    Hold Sales 
+        Persistent storage and retrieval of held sales.
+        Optional automatic cleanup of old holds.
+         
+    Receipt Customization 
+        Customizable templates with logo, contact info, policy text.
+        Thermal printer support.
+         
+     
+
+E. Reporting & Analytics 
+
+    Comprehensive Reports System 
+        Permission levels for reports.
+        Flexible filtering by date, location, user, category, etc.
+        Export formats: CSV, PDF, JSON.
+        Dashboards and drill-down reports for managers.
+         
+    Specific Reports 
+        Sales Reports (daily, weekly, monthly, detailed, voided, discount)
+        Inventory Reports (stock levels, movement, low stock, COGS)
+        Audit Trail Reports
+        Financial Reports (GST input/output, daily cash drawer report, P&L)
+         
+     
+
+F. Data Validation Rules 
+
+    Quantity constraints enforced.
+    Price changes logged automatically.
+    Reason codes mandatory for inventory adjustments.
+     
+
+III. UI/UX Considerations 
+Cashier Interface 
+
+    Simple, fast, touch-friendly layout.
+    Visible prompts, transaction summary, keyboard shortcuts.
+    Auto-complete item search.
+     
+
+Manager/Admin Interface 
+
+    Dashboards for KPIs and visualizations.
+    Tabbed navigation for settings, reports, users.
+    Robust search and filtering capabilities.
+    Drill-down from summaries to transaction/item details.
+     
+
+IV. Comprehensive Settings Dashboard (Admin User) 
+
+This dashboard enables system configurability and avoids hardcoded values. 
+
+    Business Information : Store name, address, contact, tax number.
+    Tax Settings : GST rates, calculation methods, default formulas.
+    User & Permissions : Role management, permission assignment.
+    Payment Types : Enable/disable payment methods.
+    Receipt Customization : Upload logo, edit header/footer.
+    Inventory Settings : Default min/max stock levels, reorder points, price rules.
+    Sales Rules : Default quantity limits, discount thresholds.
+    Audit Trail Settings : Log retention duration.
+    Session Timeout : Configure idle timeout.
+    Godown/Shop Configuration : Manage internal locations for transfers.
+    System Maintenance : Backup/restore, cache clearing, status check.
+    Price Level Configuration : Names and calculation logic for Levels 2 & 3.
+     
+
+X. Rules & Best Practices for Developers 
+
+To ensure code quality, maintainability, and team collaboration, all developers must follow these rules: 
+✅ Core Development Rules 
+
+    Stick to the Defined Tech Stack  
+        Do not introduce new languages, frameworks, libraries, or tools without approval.
+        Current stack includes:
+            Backend: [Python/Flask or Node.js]
+            Frontend: HTML5, CSS3, JavaScript (React/Vue optional)
+            Database: PostgreSQL or MySQL
+            Containerization: Docker
+            Web Server: Apache2
+            Logging: File-based or ELK stack (local)
+             
+         
+
+    Avoid Code Duplication  
+        Always check existing functions before writing new ones.
+        Refactor repetitive logic into shared utilities.
+         
+
+    Use Version Control Properly  
+        Commit messages must be descriptive and consistent.
+        Use feature branches and require peer-reviewed PRs before merging.
+         
+
+    Follow Clean Code Principles  
+        Write readable, self-documenting code.
+        Keep functions small and single-responsibility.
+        Follow SOLID principles where applicable.
+         
+
+    Implement Consistent Error Handling  
+        Standardize API responses.
+        Handle exceptions gracefully and log errors centrally.
+         
+
+    Write Unit and Integration Tests  
+        Test core features and edge cases.
+        Ensure coverage for transactional logic and validation rules.
+         
+
+    Maintain Transactional Integrity  
+        Wrap critical operations in database transactions.
+        Implement rollback for partial failures.
+         
+
+    Respect Data Validation Rules  
+        Enforce all defined validation rules strictly.
+        Prevent invalid states through form and backend checks.
+         
+
+    Document Functions and APIs  
+        Use inline comments and documentation blocks (JSDoc, Python docstrings).
+        Maintain up-to-date API docs if APIs are exposed.
+         
+
+    Secure Sensitive Operations  
+        Require manager authentication for key actions.
+        Sanitize inputs to prevent injection attacks.
+        Hash passwords securely (e.g., bcrypt).
+         
+
+    Test on Realistic Data  
+        Use realistic sample data and test edge cases.
+        Simulate offline scenarios for caching/sync testing.
+         
+
+    Review UI/UX Guidelines Before Coding  
+        Align with defined interface principles.
+        Avoid unnecessary complexity or clutter.
+         
+
+    Update Settings Schema Thoughtfully  
+        Document new settings clearly.
+        Define default values and validation rules upfront.
+         
+
+    Coordinate Across Modules  
+        Communicate impacts of interdependent modules.
+        Hold sync meetings before starting cross-module work.
+         
+
+    Perform Regular Code Reviews  
+        Conduct peer reviews for every major change.
+        Focus on readability, performance, security, and blueprint compliance.
+         
+     
