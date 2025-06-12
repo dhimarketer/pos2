@@ -12,3 +12,7 @@ temp.*
 *.swo
 .vscode/
 venv/
+__pycache__/
+*.pyc
+.env
+venv/
