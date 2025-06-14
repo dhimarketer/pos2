@@ -1,6 +1,7 @@
 // backend/user.ts
 
 import { Role } from './permissions';
+import { db } from './index'; // Import the database pool
 
 export interface User {
   id: number;
@@ -8,38 +9,30 @@ export interface User {
   role: Role;
 }
 
-export function createUser(username: string, role: Role): User {
-  // Implementation for creating a user
-  const id = Math.floor(Math.random() * 1000); // Placeholder
-  const newUser: User = { id, username, role };
-  users.push(newUser);
-  return newUser;
+export async function createUser(username: string, passwordHash: string, role: Role): Promise<User> {
+  const result = await db.query(
+    'INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3) RETURNING *',
+    [username, passwordHash, role]
+  );
+  return result.rows[0];
 }
 
-export function getUser(id: number): User | undefined {
-  // Implementation for getting a user by ID
-  return users.find(user => user.id === id);
+export async function getUser(id: number): Promise<User | undefined> {
+  const result = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+  return result.rows[0];
 }
 
-export function updateUser(id: number, updates: Partial<User>): User | undefined {
-  // Implementation for updating a user
-  const userIndex = users.findIndex(user => user.id === id);
-  if (userIndex === -1) {
-    return undefined;
-  }
-  users[userIndex] = { ...users[userIndex], ...updates };
-  return users[userIndex];
+export async function updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
+  const fields = Object.keys(updates).map((field, index) => `"${field}" = $${index + 2}`).join(', ');
+  const values = Object.values(updates);
+  const result = await db.query(
+    `UPDATE users SET ${fields} WHERE id = $1 RETURNING *`,
+    [id, ...values]
+  );
+  return result.rows[0];
 }
 
-export function deleteUser(id: number): boolean {
-  // Implementation for deleting a user
-  const userIndex = users.findIndex(user => user.id === id);
-  if (userIndex === -1) {
-    return false;
-  }
-  users.splice(userIndex, 1);
-  return true;
+export async function deleteUser(id: number): Promise<boolean> {
+  const result = await db.query('DELETE FROM users WHERE id = $1', [id]);
+  return result.rowCount > 0;
 }
-
-let users: User[] = [];
-users.push({ id: 1, username: 'admin', role: Role.Manager });

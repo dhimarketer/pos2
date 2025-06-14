@@ -18,25 +18,26 @@ export interface AuditLog {
   timestamp: string;
 }
 
-let auditLogs: AuditLog[] = [];
-
 export async function logAction(userId: number, action: string, description: string): Promise<AuditLog> {
   const timestamp = new Date().toISOString();
   try {
     const result = await pool.query(
-      'INSERT INTO audit_trail (userId, action, description, timestamp) VALUES ($1, $2, $3, $4) RETURNING id',
+      'INSERT INTO audit_trail (userId, action, description, timestamp) VALUES ($1, $2, $3, $4) RETURNING *',
       [userId, action, description, timestamp]
     );
-    const id = result.rows[0].id;
-    const newLog: AuditLog = { id, userId, action, description, timestamp };
-    auditLogs.push(newLog); // Keep in-memory for now
-    return newLog;
+    return result.rows[0];
   } catch (error) {
     console.error('Error inserting audit log:', error);
     throw error;
   }
 }
 
-export function getAuditLogs(): AuditLog[] {
-  return auditLogs;
+export async function getAuditLogs(): Promise<AuditLog[]> {
+  try {
+    const result = await pool.query('SELECT * FROM audit_trail');
+    return result.rows;
+  } catch (error) {
+    console.error('Error retrieving audit logs:', error);
+    throw error;
+  }
 }

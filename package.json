@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "@types/express": "^5.0.3",
+    "@types/joi": "^17.2.3",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
     "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1"
   }
 }

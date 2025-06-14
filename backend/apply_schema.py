@@ -1,45 +1,42 @@
 import mysql.connector
 import os
 
-# Load environment variables
-db_user = os.environ.get('DB_USER')
-db_password = os.environ.get('DB_PASSWORD')
-db_host = os.environ.get('DB_HOST')
-db_name = os.environ.get('DB_NAME')
-
-# Database connection configuration
-config = {
-    'user': db_user,
-    'password': db_password,
-    'host': db_host,
-    'database': db_name,
-    'raise_on_warnings': True
+# Database connection details (replace with your actual details)
+DB_CONFIG = {
+    'user': 'your_db_user',
+    'password': 'your_db_password',
+    'host': 'localhost',
+    'database': 'pos_system'
 }
 
-try:
-    # Establish database connection
-    cnx = mysql.connector.connect(**config)
-    cursor = cnx.cursor()
+def apply_schema(schema_file):
+    """Applies the SQL schema from the specified file to the database."""
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
 
-    # Read the SQL schema from the file
-    with open('database/database.sql', 'r') as f:
-        sql_script = f.read()
+        with open(schema_file, 'r') as f:
+            sql_script = f.read()
 
-    # Execute the SQL script
-    for statement in sql_script.split(';'):
-        if statement.strip():
-            cursor.execute(statement)
+        # Execute each statement in the script
+        for statement in sql_script.split(';'):
+            if statement.strip():
+                cursor.execute(statement)
 
-    # Commit the changes
-    cnx.commit()
-    print("Schema applied successfully.")
+        conn.commit()
+        print(f"Schema from {schema_file} applied successfully.")
 
-except mysql.connector.Error as err:
-    print(f"Error: {err}")
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        conn.rollback()
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
 
-finally:
-    # Close the cursor and connection
-    if cursor:
-        cursor.close()
-    if cnx:
-        cnx.close()
+if __name__ == "__main__":
+    schema_file_path = '../database/database.sql' # Path relative to backend directory
+    if os.path.exists(schema_file_path):
+        apply_schema(schema_file_path)
+    else:
+        print(f"Error: Schema file not found at {schema_file_path}")

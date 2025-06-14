@@ -1,5 +1,7 @@
 // backend/suppliers.ts
 
+import { db } from './index'; // Import the database pool
+
 export interface Supplier {
   id: number;
   companyName: string;
@@ -10,40 +12,37 @@ export interface Supplier {
   paymentTerms: string;
 }
 
-let suppliers: Supplier[] = [];
-
-export function createSupplier(
+export async function createSupplier(
   companyName: string,
   contactPerson: string,
   phone: string,
   email: string,
   address: string,
   paymentTerms: string
-): Supplier {
-  const id = Math.floor(Math.random() * 1000);
-  const newSupplier: Supplier = { id, companyName, contactPerson, phone, email, address, paymentTerms };
-  suppliers.push(newSupplier);
-  return newSupplier;
+): Promise<Supplier> {
+  const result = await db.query(
+    'INSERT INTO suppliers (company_name, contact_person, phone, email, address, payment_terms) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+    [companyName, contactPerson, phone, email, address, paymentTerms]
+  );
+  return result.rows[0];
 }
 
-export function getSupplier(id: number): Supplier | undefined {
-  return suppliers.find((supplier) => supplier.id === id);
+export async function getSupplier(id: number): Promise<Supplier | undefined> {
+  const result = await db.query('SELECT * FROM suppliers WHERE id = $1', [id]);
+  return result.rows[0];
 }
 
-export function updateSupplier(id: number, updates: Partial<Supplier>): Supplier | undefined {
-  const supplierIndex = suppliers.findIndex((supplier) => supplier.id === id);
-  if (supplierIndex === -1) {
-    return undefined;
-  }
-  suppliers[supplierIndex] = { ...suppliers[supplierIndex], ...updates };
-  return suppliers[supplierIndex];
+export async function updateSupplier(id: number, updates: Partial<Supplier>): Promise<Supplier | undefined> {
+  const fields = Object.keys(updates).map((field, index) => `"${field}" = $${index + 2}`).join(', ');
+  const values = Object.values(updates);
+  const result = await db.query(
+    `UPDATE suppliers SET ${fields} WHERE id = $1 RETURNING *`,
+    [id, ...values]
+  );
+  return result.rows[0];
 }
 
-export function deleteSupplier(id: number): boolean {
-  const supplierIndex = suppliers.findIndex((supplier) => supplier.id === id);
-  if (supplierIndex === -1) {
-    return false;
-  }
-  suppliers.splice(supplierIndex, 1);
-  return true;
+export async function deleteSupplier(id: number): Promise<boolean> {
+  const result = await db.query('DELETE FROM suppliers WHERE id = $1', [id]);
+  return result.rowCount > 0;
 }

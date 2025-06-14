@@ -1,18 +1,62 @@
-node_modules
-.DS_Store
-/dist
-/build
-.env
-*.log
-tmp/
-temp/
-tmp.*
-temp.*
-*.swp
-*.swo
-.vscode/
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+*.js
+*.js.map
+
+# Python
+.venv/
 venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+Pipfile
+poetry.lock
+*.egg-info/
+
+# Environment variables
 .env
-venv/
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Build directories
+dist/
+build/
+out/
+.next/
+.cache/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Debug
+debug/
+*.pid
+*.sqlite
+*.sqlite-journal

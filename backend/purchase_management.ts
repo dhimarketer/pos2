@@ -16,7 +16,7 @@ interface PurchaseOrder {
 interface PurchaseOrderItem {
   itemId: number;
   quantity: number;
-  price: number;
+  costPrice: number;
 }
 
 export class PurchaseManagement {
@@ -29,7 +29,7 @@ export class PurchaseManagement {
       supplier: supplier,
       orderDate: new Date(),
       items: items,
-      totalAmount: items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+      totalAmount: items.reduce((sum, item) => sum + (item.costPrice * item.quantity), 0),
       status: 'pending',
     };
     return newOrder;

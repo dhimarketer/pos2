@@ -1,66 +1,114 @@
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  role VARCHAR(255) NOT NULL
+-- Create Users table
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE items (
-  id SERIAL PRIMARY KEY,
-  sku VARCHAR(255) UNIQUE NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  category VARCHAR(255),
-  cost_price DECIMAL(10, 2) NOT NULL,
-  packaging_unit VARCHAR(255),
-  stock INTEGER NOT NULL,
-  multi_level_pricing JSONB,
-  status VARCHAR(255),
-  max_sale_qty INTEGER,
-  price_change_history TEXT
+-- Create Customers table
+CREATE TABLE Customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    contact_info VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE customers (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  contact_info VARCHAR(255),
-  address TEXT,
-  purchase_history TEXT
+-- Create Suppliers table
+CREATE TABLE Suppliers (
+    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    contact_info VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE suppliers (
-  id SERIAL PRIMARY KEY,
-  company_name VARCHAR(255) NOT NULL,
-  contact_person VARCHAR(255),
-  phone VARCHAR(255),
-  email VARCHAR(255),
-  address TEXT,
-  payment_terms VARCHAR(255)
+-- Create Items table
+CREATE TABLE Items (
+    item_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    stock_quantity INT NOT NULL,
+    supplier_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES Suppliers(supplier_id)
 );
 
-CREATE TABLE purchase_orders (
-  id SERIAL PRIMARY KEY,
-  supplier_id INTEGER REFERENCES suppliers(id),
-  item_id INTEGER REFERENCES items(id),
-  quantity INTEGER NOT NULL,
-  cost DECIMAL(10, 2) NOT NULL,
-  order_date DATE NOT NULL
+-- Create SalesTransactions table
+CREATE TABLE SalesTransactions (
+    transaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT,
+    user_id INT,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    payment_method VARCHAR(50),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
-CREATE TABLE sales_transactions (
-  id SERIAL PRIMARY KEY,
-  item_id INTEGER REFERENCES items(id),
-  customer_id INTEGER REFERENCES customers(id),
-  quantity INTEGER NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  sale_date DATE NOT NULL,
-  payment_type VARCHAR(255) NOT NULL
+-- Create SalesTransactionItems table (for items within a transaction)
+CREATE TABLE SalesTransactionItems (
+    transaction_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    transaction_id INT,
+    item_id INT,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (transaction_id) REFERENCES SalesTransactions(transaction_id),
+    FOREIGN KEY (item_id) REFERENCES Items(item_id)
 );
 
-CREATE TABLE audit_trail (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id),
-  action VARCHAR(255) NOT NULL,
-  description TEXT,
-  timestamp TIMESTAMP NOT NULL
+-- Create PurchaseOrders table
+CREATE TABLE PurchaseOrders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    supplier_id INT,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expected_delivery_date DATE,
+    status VARCHAR(50) NOT NULL,
+    total_amount DECIMAL(10, 2),
+    FOREIGN KEY (supplier_id) REFERENCES Suppliers(supplier_id)
+);
+
+-- Create PurchaseOrderItem table (for items within a purchase order)
+CREATE TABLE PurchaseOrderItem (
+    order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    item_id INT,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES PurchaseOrders(order_id),
+    FOREIGN KEY (item_id) REFERENCES Items(item_id)
+);
+
+-- Create Inventory table (could be used for tracking stock movements)
+CREATE TABLE Inventory (
+    inventory_id INT PRIMARY KEY AUTO_INCREMENT,
+    item_id INT,
+    transaction_type VARCHAR(50) NOT NULL, -- e.g., 'sale', 'purchase', 'adjustment'
+    quantity_change INT NOT NULL,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES Items(item_id)
+);
+
+-- Create AuditLog table
+CREATE TABLE AuditLog (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    action VARCHAR(255) NOT NULL,
+    entity_type VARCHAR(50),
+    entity_id INT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    details TEXT,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Create Permissions table (if implementing granular permissions)
+CREATE TABLE Permissions (
+    permission_id INT PRIMARY KEY AUTO_INCREMENT,
+    role VARCHAR(50) NOT NULL,
+    resource VARCHAR(255) NOT NULL,
+    can_read BOOLEAN DEFAULT FALSE,
+    can_write BOOLEAN DEFAULT FALSE,
+    can_delete BOOLEAN DEFAULT FALSE,
+    UNIQUE KEY (role, resource)
 );

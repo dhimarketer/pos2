@@ -1,5 +1,7 @@
 // backend/customers.ts
 
+import { db } from './index'; // Import the database pool
+
 export interface Customer {
   id: number;
   name: string;
@@ -8,33 +10,30 @@ export interface Customer {
   purchaseHistory: string;
 }
 
-let customers: Customer[] = [];
-
-export function createCustomer(name: string, contactInfo: string, address: string, purchaseHistory: string): Customer {
-  const id = Math.floor(Math.random() * 1000);
-  const newCustomer: Customer = { id, name, contactInfo, address, purchaseHistory };
-  customers.push(newCustomer);
-  return newCustomer;
+export async function createCustomer(name: string, contactInfo: string, address: string, purchaseHistory: string): Promise<Customer> {
+  const result = await db.query(
+    'INSERT INTO customers (name, contact_info, address, purchase_history) VALUES ($1, $2, $3, $4) RETURNING *',
+    [name, contactInfo, address, purchaseHistory]
+  );
+  return result.rows[0];
 }
 
-export function getCustomer(id: number): Customer | undefined {
-  return customers.find((customer) => customer.id === id);
+export async function getCustomer(id: number): Promise<Customer | undefined> {
+  const result = await db.query('SELECT * FROM customers WHERE id = $1', [id]);
+  return result.rows[0];
 }
 
-export function updateCustomer(id: number, updates: Partial<Customer>): Customer | undefined {
-  const customerIndex = customers.findIndex((customer) => customer.id === id);
-  if (customerIndex === -1) {
-    return undefined;
-  }
-  customers[customerIndex] = { ...customers[customerIndex], ...updates };
-  return customers[customerIndex];
+export async function updateCustomer(id: number, updates: Partial<Customer>): Promise<Customer | undefined> {
+  const fields = Object.keys(updates).map((field, index) => `"${field}" = $${index + 2}`).join(', ');
+  const values = Object.values(updates);
+  const result = await db.query(
+    `UPDATE customers SET ${fields} WHERE id = $1 RETURNING *`,
+    [id, ...values]
+  );
+  return result.rows[0];
 }
 
-export function deleteCustomer(id: number): boolean {
-  const customerIndex = customers.findIndex((customer) => customer.id === id);
-  if (customerIndex === -1) {
-    return false;
-  }
-  customers.splice(customerIndex, 1);
-  return true;
+export async function deleteCustomer(id: number): Promise<boolean> {
+  const result = await db.query('DELETE FROM customers WHERE id = $1', [id]);
+  return result.rowCount > 0;
 }
