@@ -15,8 +15,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/joi": "^17.2.3",
     "bcrypt": "^6.0.0",
     "express": "^5.1.0",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.0",
     "sqlite3": "^5.1.7"

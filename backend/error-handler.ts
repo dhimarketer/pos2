@@ -1,9 +1,16 @@
 // backend/error-handler.ts
 
 import { Request, Response, NextFunction } from 'express';
-import { ValidationError } from './validation';
 import fs from 'fs';
 import path from 'path';
+
+export class ValidationError extends Error {
+  public statusCode: number = 400;
+  constructor(message: string, public details?: any) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
 
 // Custom error classes
 export class DatabaseError extends Error {
