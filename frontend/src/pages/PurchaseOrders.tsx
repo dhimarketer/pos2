@@ -1,17 +1,30 @@
 import React from 'react';
-import '../App.css';
 
 function PurchaseOrders() {
   return (
-    <div className="page">
+    <div>
       <h1>Purchase Orders</h1>
-      <p>This is the purchase orders page. You can manage your purchase orders here.</p>
-      <ul>
-        <li>Create new purchase orders</li>
-        <li>View existing purchase orders</li>
-        <li>Update purchase order information</li>
-        <li>Delete purchase orders</li>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Supplier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Item 1</td>
+            <td>100</td>
+            <td>Supplier 1</td>
+          </tr>
+          <tr>
+            <td>Item 2</td>
+            <td>200</td>
+            <td>Supplier 2</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }

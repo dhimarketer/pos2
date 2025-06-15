@@ -1,17 +1,30 @@
 import React from 'react';
-import '../App.css';
 
 function Suppliers() {
   return (
-    <div className="page">
+    <div>
       <h1>Suppliers</h1>
-      <p>This is the suppliers page. You can manage your suppliers here.</p>
-      <ul>
-        <li>Add new suppliers</li>
-        <li>View existing suppliers</li>
-        <li>Update supplier information</li>
-        <li>Delete suppliers</li>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Supplier Name</th>
+            <th>Contact</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Supplier 1</td>
+            <td>123-456-7890</td>
+            <td>123 Main St</td>
+          </tr>
+          <tr>
+            <td>Supplier 2</td>
+            <td>456-789-0123</td>
+            <td>456 Elm St</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -8,6 +8,7 @@ export const validateSalesTransaction = [
     body('items.*.productId').notEmpty().withMessage('Product ID is required').isInt({ min: 1 }).withMessage('Product ID must be a positive integer'),
     body('items.*.quantity').notEmpty().withMessage('Quantity is required').isInt({ min: 1 }).withMessage('Quantity must be a positive integer'),
     body('totalAmount').notEmpty().withMessage('Total amount is required').isFloat({ min: 0.01 }).withMessage('Total amount must be a positive number'),
+    body('paymentMethod').trim().notEmpty().withMessage('Payment method is required').isIn(['cash', 'credit', 'debit']).withMessage('Invalid payment method'),
     (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

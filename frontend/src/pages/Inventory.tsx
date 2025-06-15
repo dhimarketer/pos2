@@ -1,17 +1,10 @@
 import React from 'react';
-import '../App.css';
 
 function Inventory() {
   return (
-    <div className="page">
+    <div>
       <h1>Inventory</h1>
-      <p>This is the inventory page. You can manage your inventory here.</p>
-      <ul>
-        <li>Add new items</li>
-        <li>View existing items</li>
-        <li>Update item information</li>
-        <li>Delete items</li>
-      </ul>
+      <p>Welcome to the inventory management interface!</p>
     </div>
   );
 }

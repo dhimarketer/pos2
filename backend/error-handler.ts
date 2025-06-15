@@ -82,6 +82,9 @@ function logErrorToFile(error: Error, req: Request, details?: any) {
   };
 
   fs.appendFileSync(ERROR_LOG_FILE, JSON.stringify(logEntry) + '\n');
+
+  // Placeholder for sending error logs to an external service
+  // sendErrorToExternalService(logEntry);
 }
 
 export function errorHandler(

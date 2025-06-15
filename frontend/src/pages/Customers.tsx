@@ -1,17 +1,43 @@
-import React from 'react';
-import '../App.css';
+import React, { useState, useEffect } from 'react';
+import customerService from '../services/customerService';
 
 function Customers() {
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await customerService.getAllCustomers();
+        setCustomers(data);
+      } catch (error: any) {
+        console.error('Failed to fetch customers', error);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
   return (
-    <div className="page">
+    <div>
       <h1>Customers</h1>
-      <p>This is the customers page. You can manage your customers here.</p>
-      <ul>
-        <li>Add new customers</li>
-        <li>View existing customers</li>
-        <li>Update customer information</li>
-        <li>Delete customers</li>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Contact</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map((customer: any) => (
+            <tr key={customer._id}>
+              <td>{customer.customerName}</td>
+              <td>{customer.contact}</td>
+              <td>{customer.address}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

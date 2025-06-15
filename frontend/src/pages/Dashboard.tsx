@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 
 function Dashboard() {
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h1>Dashboard</h1>
-      <nav>
+      <p>Welcome to the dashboard!</p>
+      <div>
+        <h2>Quick Links</h2>
         <ul>
           <li>
             <Link to="/inventory">Inventory</Link>
@@ -26,7 +28,7 @@ function Dashboard() {
             <Link to="/reports">Reports</Link>
           </li>
         </ul>
-      </nav>
+      </div>
     </div>
   );
 }

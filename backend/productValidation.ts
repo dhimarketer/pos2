@@ -6,6 +6,7 @@ export const validateProduct = [
     body('description').trim().notEmpty().withMessage('Description is required').isLength({ max: 200 }).withMessage('Description cannot exceed 200 characters'),
     body('price').notEmpty().withMessage('Price is required').isFloat({ min: 0.01 }).withMessage('Price must be a positive number'),
     body('quantity').notEmpty().withMessage('Quantity is required').isInt({ min: 0 }).withMessage('Quantity must be a non-negative integer'),
+    body('category').trim().notEmpty().withMessage('Category is required').isLength({ max: 50 }).withMessage('Category cannot exceed 50 characters'),
     (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
